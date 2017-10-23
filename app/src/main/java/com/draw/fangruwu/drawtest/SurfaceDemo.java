@@ -12,11 +12,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -28,26 +24,41 @@ public class SurfaceDemo extends Activity implements SurfaceHolder.Callback {
     private static final String TAG = "Test SurfaceView";
     private float RectLeft, RectTop,RectRight,RectBottom ;
     int  deviceHeight,deviceWidth;
-    int matrixWidth = 16;
-    int matrixHeight = 5;
-    public static int[][] tileArray;
-
+    int matrixWidth = 18;
+    int matrixHeight =18;
+    ArrayList<Integer> pixels;
+    int [][] matrix = new int[18][18];
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+
         SurfaceView view = new SurfaceView(this);
         setContentView(view);
         view.getHolder().addCallback(this);
-        try {
-            loadTileMap("test",3,16);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            loadTileMap("test",3,16);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         deviceWidth=getScreenWidth();
 
         deviceHeight=getScreenHeight();
+
+        pixels = new ArrayList<>();
+
+        ParseToBitmap parse = new ParseToBitmap();
+
+        parse.stringToBufferedImage("T", 16, Color.RED, pixels);
+
+        for (int i=0; i < 18; i++) {
+            for (int j=0 ; j < 18; j++) {
+                matrix[i][j] = pixels.get(i + j * 18);
+            }
+        }
+        rotateByNinetyToRight(matrix);
 
     }
 
@@ -105,33 +116,48 @@ public class SurfaceDemo extends Activity implements SurfaceHolder.Callback {
         paint.setColor(Color.BLACK);
         paint.setStrokeWidth(3);
 
+        Paint paintFill = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paintFill.setStyle(Paint.Style.FILL);
+        paintFill.setColor(Color.BLACK);
+        paintFill.setStrokeWidth(3);
+
         for (int i=0; i< matrixHeight ; i++) {
             for (int j=0; j < matrixWidth; j++) {
-                Rect rec=new Rect(j * widthSize, i * widthSize, j * widthSize + widthSize, i * widthSize + widthSize);
-                canvas.drawRect(rec,paint);
+
+                if (matrix[i][j] == 1) {
+                    Rect rec=new Rect(j * heightSize, i * heightSize, j * heightSize + heightSize, i * heightSize + heightSize);
+                    canvas.drawRect(rec,paintFill);
+                }else {
+                    Rect rec=new Rect(j * heightSize, i * heightSize, j * heightSize + heightSize, i * heightSize + heightSize);
+                    canvas.drawRect(rec,paint);
+                }
+
             }
         }
     }
 
-    public void loadTileMap(String str, int height, int width) throws IOException {
+    public void swapRows(int[][] m) {
+        for (int  i = 0, k = m.length - 1; i < k; ++i, --k) {
+            int[] x = m[i];
+            m[i] = m[k];
+            m[k] = x;
+        }
+    }
 
-        // convert String into InputStream
-        //InputStream is = new ByteArrayInputStream(str.getBytes());
-        InputStream is = new ByteArrayInputStream("GG".getBytes());
+    public void rotateByNinetyToRight(int[][] m) {
+        swapRows(m);
+        transpose(m);
+    }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        String line;
-        tileArray = new int[width][height];
+    private void transpose(int[][] m) {
 
-        for (int i = 0; i < width; i++) {
-            line = reader.readLine();
-            if (line == null) {
-                reader.close();
-            }
-            for (int j = 0; j < height; j++) {
-                int k = Integer.parseInt(line.substring(j, j+1));
-                tileArray[i][j] = k;
+        for (int i = 0; i < m.length; i++) {
+            for (int j = i; j < m[0].length; j++) {
+                int x = m[i][j];
+                m[i][j] = m[j][i];
+                m[j][i] = x;
             }
         }
     }
+
 }

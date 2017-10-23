@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SurfaceDemo">
+        <activity android:name=".SurfaceDemo"
+            android:screenOrientation="landscape"  >
         </activity>
     </application>
 
