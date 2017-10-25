@@ -99,6 +99,8 @@ public class SurfaceDemo extends Activity implements SurfaceHolder.Callback {
         if (canvas == null) {
             Log.e(TAG, "Cannot draw onto the canvas as it's null");
         } else {
+
+            canvas.drawColor(Color.WHITE);
             drawMyStuff(canvas);
             holder.unlockCanvasAndPost(canvas);
         }
@@ -120,6 +122,7 @@ public class SurfaceDemo extends Activity implements SurfaceHolder.Callback {
         paintFill.setStyle(Paint.Style.FILL);
         paintFill.setColor(Color.BLACK);
         paintFill.setStrokeWidth(3);
+
 
         for (int i=0; i< matrixHeight ; i++) {
             for (int j=0; j < matrixWidth; j++) {
